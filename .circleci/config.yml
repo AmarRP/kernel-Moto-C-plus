@@ -1,0 +1,26 @@
+sudo: required
+
+before_install:
+- sudo apt-get install zip
+- sudo apt install ccache
+- sudo apt install liblz4-tool
+- git clone --recursive https://github.com/TheRagingBeast/TheRagingBeast-kernel-Moto-C-plus -b master ~/trb
+- git clone https://github.com/nathanchance/gcc-prebuilts -b arm-gnu-7.x ~/trb/tc
+script:
+- cd ~/trb
+- chmod a+x ~/trb/tc
+- chmod a+x ~/trb/tc/bin
+- sudo chmod -R 755 ~/trb
+- export ARCH=arm
+- export CROSS_COMPILE=~/trb/tc/bin/arm-gnu-linux-androideabi-
+- mkdir -p out
+- make O=out panelli_defconfig
+- make O=out -j128
+- cd ~/trb/out/arch/arm/boot
+- curl --upload-file ./zImage-dtb https://transfer.sh/zImage-dtb
+- curl --upload-file ./zImage https://transfer.sh/zImage
+- mv ~/trb/out/arch/arm/boot/zImage-dtb ~/trb/TRB-Kernel-Panelli/zImage-dtb
+- cd ~/trb/TRB-Kernel-Panelli
+- zip -r TRB-Kernel-Panelli.zip *
+- curl --upload-file ./TRB-Kernel-Panelli.zip https://transfer.sh/TRB-Kernel-Panelli.zip
+- echo All Done
